@@ -9,7 +9,6 @@ from typing import NamedTuple
 from git import GitCommandError
 from legendmeta import AttrsDict, LegendMetadata, TextDB
 from pyg4ometry import geant4
-from pygeomtools import detectors, geometry, visualization
 from pygeomtools.utils import load_dict_from_config
 
 from . import calibration, cryo, fibers, hpge_strings, materials, top, watertank, wlsr
@@ -100,20 +99,20 @@ def construct(
             -153.0
         )  # (innertank_height/2-cryo_acess_height-cryo_top_height-access_overlap/2)
 
-        water_tank_union_solid_lv = watertank.insert_muon_veto(
+        water_tank = watertank.insert_muon_veto(
             reg,
             world_lv,
             tank_z_displacement,
             cryo_z_displacement,
             mats.water,
-            mats.nylon_vm2000,
+            mats.vm2000,
             mats.pmt_air,
             mats.acryl,
             mats.borosilicate,
             pmt_configuration_mv,
         )
 
-        cryo.place_cryostat(cryostat_lv, water_tank_union_solid_lv, cryo_z_displacement, reg)
+        cryo.place_cryostat(cryostat_lv, water_tank, cryo_z_displacement, reg)
     else:
         cryo.place_cryostat(cryostat_lv, world_lv, cryo_z_displacement, reg)
     argon_z_displacement = 0  # center argon in cryostat
@@ -169,10 +168,6 @@ def construct(
         fibers.place_fiber_modules(hw_meta, instr, use_detailed_fiber_model)
 
     _assign_common_copper_surface(instr)
-
-    detectors.write_detector_auxvals(reg)
-    visualization.write_color_auxvals(reg)
-    geometry.check_registry_sanity(reg, reg)
 
     return reg
 
